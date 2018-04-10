@@ -49,7 +49,7 @@ public class StegPeg {
                     if(bit == 1) {
                         for(int u = 0; u < 8; u ++) {
                             for(int v = 0; v < 8; v ++) {
-                                dctCoeffBlock[u][v] = 0;
+                                dctCoeffBlock[u][v] *= .98;
                             }
                         }
                     }
@@ -94,7 +94,7 @@ public class StegPeg {
         try {
             boolean firstPrint = true;
             
-            BufferedImage imIn = ImageIO.read(getClass().getClassLoader().getResource(stegFileName));
+            BufferedImage imIn = ImageIO.read(new File(stegFileName));
             BufferedImage orig = ImageIO.read(getClass().getClassLoader().getResource(origFileName));
             for(int y = 0; y < imIn.getHeight(); y += 8) {
                 for(int x = 0; x < imIn.getWidth(); x += 8) {
@@ -116,10 +116,10 @@ public class StegPeg {
                     
                     float[][] dctCoeffBlock1 = type2DCT(yBlock1);
                     float[][] dctCoeffBlock2 = type2DCT(yBlock2);
-                    System.out.println("Orig block: ");
-                    printBlock(dctCoeffBlock2);
-                    System.out.println("Steg block: ");
-                    printBlock(dctCoeffBlock1);
+                    //System.out.println("Orig block: ");
+                    //printBlock(dctCoeffBlock2);
+                    //System.out.println("Steg block: ");
+                    //printBlock(dctCoeffBlock1);
                     //float test = dctCoeffBlock[0][0] * quantizationMatrix[0][0];
                     
                     int bit;
@@ -131,7 +131,7 @@ public class StegPeg {
                     //} else {
                     //    bit = 0;
                     //}
-                    
+                    //for(int i = 0 )
                     bit = Math.abs(dctCoeffBlock1[0][0] - dctCoeffBlock2[0][0]) > 10 ? 1 : 0;
                     
                     
@@ -166,7 +166,7 @@ public class StegPeg {
     
     public void compress(String fileName) {
         try {
-            BufferedImage imIn = ImageIO.read(getClass().getClassLoader().getResource(fileName));
+            BufferedImage imIn = ImageIO.read(new File(fileName));
             BufferedImage noAlpha = new BufferedImage(imIn.getWidth(), imIn.getHeight(), BufferedImage.TYPE_INT_RGB);
             Graphics g = noAlpha.createGraphics();
             g.drawImage(imIn, 0, 0, imIn.getWidth(), imIn.getHeight(), null);
