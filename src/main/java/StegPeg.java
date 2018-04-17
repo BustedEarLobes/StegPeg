@@ -8,7 +8,9 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 public class StegPeg {
-    int[][] quantizationMatrix = new int[][] {
+    private static final double STEG_COEFF = 0.98;
+    
+	int[][] quantizationMatrix = new int[][] {
         {16, 12, 14, 14, 18, 24, 49, 72},
         {11, 12, 13, 17, 22, 35, 64, 92},
         {10, 14, 16, 22, 37, 55, 78, 95},
@@ -49,7 +51,7 @@ public class StegPeg {
                     if(bit == 1) {
                         for(int u = 0; u < 8; u ++) {
                             for(int v = 0; v < 8; v ++) {
-                                dctCoeffBlock[u][v] *= .98;
+                                dctCoeffBlock[u][v] *= STEG_COEFF;
                             }
                         }
                     }
@@ -92,7 +94,7 @@ public class StegPeg {
         byte currentByte = 0;
         List<Byte> bytes = new LinkedList<Byte>();
         try {
-            boolean firstPrint = true;
+            //boolean firstPrint = true;
             
             BufferedImage imIn = ImageIO.read(new File(stegFileName));
             BufferedImage orig = ImageIO.read(getClass().getClassLoader().getResource(origFileName));
@@ -132,7 +134,7 @@ public class StegPeg {
                     //    bit = 0;
                     //}
                     //for(int i = 0 )
-                    bit = Math.abs(dctCoeffBlock1[0][0] - dctCoeffBlock2[0][0]) > 10 ? 1 : 0;
+                    bit = Math.abs(dctCoeffBlock1[0][0] - dctCoeffBlock2[0][0]) >= (1 - STEG_COEFF) * dctCoeffBlock2[0][0] ? 1 : 0;
                     
                     
                     currentByte = setBit(currentByte, bit, currentBitIndex);
@@ -308,8 +310,24 @@ public class StegPeg {
     
     public static void main(String[] args) {
         StegPeg stegPeg = new StegPeg();
-        stegPeg.run();
+        //stegPeg.run();
 
+        float start1 = 128;
+        float start2 = 63;
+        float const1 = 16;
+        float const2 = 24;
+        
+        for(float fact = .5f; fact < 1.5; fact += .125f) {
+        	float quant1 = (float) Math.floor(start1/(float)(fact * const1));
+        	float quant2 = (float) Math.floor(start2/(float)(fact * const2));
+        	System.out.print(start1 + "," + start2);
+        	System.out.print(" | " + (fact * const1) + "," + (fact * const2));
+        	System.out.print(" | " + quant1 + "," + quant2);
+        	start1 = (float) (quant1 * (fact * const1));
+        	start2 = (float) (quant2 * (fact * const2));
+        	System.out.println(" | " + start1 + "," + start2);
+        }
+        
         /*
         int[][] testDCT = new int[][] {
             {52, 63, 62, 63, 67, 79, 85, 87},
@@ -349,7 +367,7 @@ public class StegPeg {
             }
             System.out.println();
         }
-     
         */
+        
     }
 }
